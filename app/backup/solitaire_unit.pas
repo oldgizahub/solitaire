@@ -22,7 +22,9 @@ Type
     // TfrmMain
 
   TfrmMain = class(TForm)
-    tbarSpeed: TTrackBar;
+    imgAutoPlay: TImage;
+    imgAutoPlayHand: TImage;
+    imgAutoPlayCogs: TImage;
     imgTagborder: TImage;
 
     pnlSolitaire         : TPanel;
@@ -42,8 +44,9 @@ Type
     imgUndoHighlight     : TImage;
     imgHintNormal        : TImage;
     imgHintHighlight     : TImage;
-    imgRepaintNormal     : TImage;
-    imgRepaintHighlight  : TImage;
+    tbarSpeed            : TTrackBar;
+    imgRepaintNormal     : TImage;     {not use}
+    imgRepaintHighlight  : TImage;     {not used}
     imgAboutNormal       : TImage;
     imgAboutHighlight    : TImage;
     imgQuitNormal        : TImage;
@@ -57,6 +60,8 @@ Type
 
     imgTouch             : TImage;
     imgTag               : TImage;
+    timAutoPlay: TTimer;
+    timFirstGame         : TTimer;
 
     Card01               : TImage;
     Card02               : TImage;
@@ -115,10 +120,14 @@ Type
     procedure FormCreate(Sender: TObject);
     procedure FormMouseWheel(Sender: TObject; Shift: TShiftState;
       WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
+    procedure imgAutoPlayClick(Sender: TObject);
+    procedure imgAutoPlayMouseEnter(Sender: TObject);
+    procedure imgAutoPlayMouseLeave(Sender: TObject);
 
     procedure imgNewGameClick(Sender: TObject);
     procedure imgNewGameMouseEnter(Sender: TObject);
     procedure imgNewGameMouseLeave(Sender: TObject);
+    procedure imgQuitNormalClick(Sender: TObject);
     procedure imgRepaintHighlightClick(Sender: TObject);
     procedure imgReplayClick(Sender: TObject);
     procedure imgReplayMouseEnter(Sender: TObject);
@@ -147,6 +156,8 @@ Type
     procedure sclick(Sender: TObject);
 
     procedure shpDrawemptyMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+    procedure timAutoPlayTimer(Sender: TObject);
+    procedure timFirstGameTimer(Sender: TObject);
 
   private
   public
@@ -226,8 +237,8 @@ Const
   FORMHEIGHT              : smallint = 550;
 
 
-  DEALTOP                 : smallint = 200;
-  DEALLEFT                : smallint = 300;
+  DEALTOP                 : smallint = 400;
+  DEALLEFT                : smallint = 264;
 
   DISCARDTOP              : smallint = 60;
   DISCARDLEFT             : smallint = 102;              {20 + 72 + 10 to line up with pile 2}
@@ -262,6 +273,9 @@ Var
 
   animatedelay            : smallint = 0;
   animateon               : boolean = True;
+
+  autoplay                : boolean = False;
+  autoplaydelay           : smallint = 0;
 
   backimage               : TImage;                           {back of the card}
   cardimage               : array [card]        of TImage;    {each card's image}
@@ -373,8 +387,8 @@ procedure moveinteriortofaceup (chaintopcard : card; frompile : smallint; topile
 procedure turnoverfacedown (pile : smallint);                          forward;
 
   // Game help
-function balanced (targetcard : card)                     : boolean;   forward;
 procedure wherecanmove (cmove : card; cardposition : shortstring);     forward;
+function balanced (targetcard : card)                     : boolean;   forward;
 procedure overlaptarget;                                               forward;
 procedure selectmove;                                                  forward;
 procedure displayhint;                                                 forward;
@@ -389,6 +403,9 @@ procedure undo_discardtofaceup;                                        forward;
 procedure undo_scoretofaceup;                                          forward;
 procedure undo_faceupshift;                                            forward;
 procedure undo_turnoverfacedown;                                       forward;
+
+  // Auto play
+procedure doautoplaymove;                                              forward;
 
   // Card display
 procedure layoutthegame;                                               forward;
@@ -428,7 +445,9 @@ begin
   loadcardimagesfromresources;
   setupdeck;
   setuptiming;
-  startgame;
+
+  timFirstGame.Enabled := True;
+  //startgame;
 end;
 
 //===================================================================
@@ -439,15 +458,16 @@ procedure setuppanelimages;
 
 begin
 
-  frmMain.imgNewGame.Picture := frmMain.imgNewGameNormal.Picture;
-  frmMain.imgReplay.Picture  := frmMain.imgReplayNormal.Picture;
-  frmMain.imgUndo.Picture    := frmMain.imgUndoNormal.Picture;
-  frmMain.imgHint.Picture    := frmMain.imgHintNormal.Picture;
-  frmMain.imgRepaint.Picture := frmMain.imgRepaintNormal.Picture;
-  frmMain.imgAbout.Picture   := frmMain.imgAboutNormal.Picture;
-  frmMain.imgQuit.Picture    := frmMain.imgQuitNormal.Picture;
+  frmMain.imgNewGame.Picture  := frmMain.imgNewGameNormal.Picture;
+  frmMain.imgReplay.Picture   := frmMain.imgReplayNormal.Picture;
+  frmMain.imgUndo.Picture     := frmMain.imgUndoNormal.Picture;
+  frmMain.imgHint.Picture     := frmMain.imgHintNormal.Picture;
+  frmMain.imgRepaint.Picture  := frmMain.imgRepaintNormal.Picture;
+  frmMain.imgAutoPlay.Picture := frmMain.imgAutoPlayHand.Picture;
+  frmMain.imgAbout.Picture    := frmMain.imgAboutNormal.Picture;
+  frmMain.imgQuit.Picture     := frmMain.imgQuitNormal.Picture;
 
-  frmMain.imgRepaint.Visible := False;     {not currently used};
+  frmMain.imgRepaint.Visible  := False;     {not currently used};
 
 end;
 
@@ -622,9 +642,9 @@ begin
     pcard[c].Transparent := True;
     pcard[c].Width := CARDWIDTH;
     pcard[c].Height := CARDHEIGHT;
-    pcard[c].Left := 15*i;
-    pcard[c].Top := 400;
-    pcard[c].Visible := true;
+    pcard[c].Left := DEALLEFT;
+    pcard[c].Top := DEALTOP;
+    pcard[c].Visible := True;
     pcard[c].Picture.Assign(backimage.Picture);
 
   end;
@@ -632,10 +652,10 @@ begin
 end;
 
 //===================================================================
-// Set up timing.
+// Set up animation timing.
 //
-// No animation by default. This gives the fastest, cleanest game
-// for people who don't want to be bothered with extras.
+// We will have animations on so that all features of the program
+// can be made aware.
 //===================================================================
 
 procedure setuptiming;
@@ -643,9 +663,48 @@ procedure setuptiming;
 begin
   frmMain.tbarSpeed.Min := 0;
   frmMain.tbarSpeed.Max := 10;
-  frmMain.tbarSpeed.Position := frmMain.tbarSpeed.Max;
-  animateon := False;
+  frmMain.tbarSpeed.Position := frmMain.tbarSpeed.Max - 1;
+  animateon := True;
+  animatedelay := 5 * (frmMain.tbarspeed.Max - frmMain.tbarSpeed.Position);
+  autoplaydelay := animatedelay;
 end;
+
+//===================================================================
+// Timer to start first game.
+//
+// (This timer has nothing to do with the animation timing above.)
+//
+// Lazarus won't show anything until the form.create event is over.
+// That means if you want to show things moving around during the form
+// setup, they won't appear. You only get the end result, the state
+// when the form.create event finishes.
+//
+// We want to show some stuff. So we put a timer into the form.create
+// event. The form.create event finishes, the timer runs, and when it
+// finishes, it starts the first game and we get the effects.
+//===================================================================
+
+procedure TfrmMain.timFirstGameTimer(Sender: TObject);
+begin
+  timFirstGame.Enabled := False;
+  startgame;
+end;
+
+//===================================================================
+// Timer to pause between autplay moves.
+//
+// When it runs down, do another autplay move, unless the user has
+// taken advantage of the intervl to turn autoplay off.
+//===================================================================
+
+procedure TfrmMain.timAutoPlayTimer(Sender: TObject);
+begin
+  timAutoPlay.Enabled := False;
+  if autoplay = True then begin
+    doautoplaymove;
+  end;
+end;
+
 
 //###################################################################
 // PANEL EVENTS
@@ -670,6 +729,11 @@ end;
 procedure TfrmMain.imgNewGameMouseLeave(Sender: TObject);
 begin
   imgNewGame.Picture := frmMain.imgNewGameNormal.Picture;
+end;
+
+procedure TfrmMain.imgQuitNormalClick(Sender: TObject);
+begin
+
 end;
 
 procedure TfrmMain.imgRepaintHighlightClick(Sender: TObject);
@@ -787,6 +851,72 @@ begin
   removehint;
 end;
 
+
+//===================================================================
+// Autoplay - click: change state
+//          - mouse enter: show opposite state
+//          - mouse leave: show current state
+//===================================================================
+
+procedure TfrmMain.imgAutoPlayClick(Sender: TObject);
+begin
+  case autoplay of
+    True: begin
+      autoplay := False;
+      imgAutoPlay.Picture := imgAutoPlayHand.Picture;
+    end;
+    False: begin
+      autoplay := True;
+      imgAutoPlay.picture := imgAutoPlayCogs.Picture;
+      doautoplaymove;
+    end;
+  end;
+end;
+
+procedure TfrmMain.imgAutoPlayMouseEnter(Sender: TObject);
+begin
+  case autoplay of
+    True: begin
+      imgAutoPlay.Picture := imgAutoPlayHand.Picture;
+    end;
+    False: begin
+      imgAutoPlay.picture := imgAutoPlayCogs.Picture;
+    end;
+  end;
+end;
+
+procedure TfrmMain.imgAutoPlayMouseLeave(Sender: TObject);
+begin
+  case autoplay of
+    True: begin
+      imgAutoPlay.Picture := imgAutoPlayCogs.Picture;
+    end;
+    False: begin
+      imgAutoPlay.picture := imgAutoPlayHand.Picture;
+    end;
+  end;
+end;
+
+//===================================================================
+// Moved the speed slider.
+// Reset animation delay.
+//===================================================================
+
+procedure TfrmMain.tbarSpeedChange(Sender: TObject);
+
+begin
+
+  if tbarSpeed.Position = tbarSpeed.Max then begin
+    animateon := False;
+  end
+  else begin
+    animateon := True;
+    animatedelay := 5 * (tbarSpeed.max - tbarSpeed.position);
+    autoplaydelay := animatedelay;
+  end;
+
+end;
+
 //===================================================================
 // Repaint - click: redo the card display in case of a glitch
 //         - mouse enter: highlight, show hint
@@ -809,25 +939,6 @@ end;
 procedure TfrmMain.imgRepaintMouseLeave(Sender: TObject);
 begin
   imgRepaint.Picture := frmMain.imgRepaintNormal.Picture;
-end;
-
-//===================================================================
-// Moved the speed slider.
-// Reset animation delay.
-//===================================================================
-
-procedure TfrmMain.tbarSpeedChange(Sender: TObject);
-
-begin
-
-  if tbarSpeed.Position = tbarSpeed.Max then begin
-    animateon := False;
-  end
-  else begin
-    animateon := True;
-    animatedelay := 5 * (tbarSpeed.max + 1 - tbarSpeed.position);
-  end;
-
 end;
 
 //===================================================================
@@ -999,13 +1110,18 @@ begin
 
     // 1 - Is it the top card on the draw pile?
     //     If so, no drag is possible.
+    //
+    //     The '=' in the consecutive draw test handles the situation
+    //     where there are no cards left in either stack. This allows
+    //     us to go desperate, otherwise we never would when they are
+    //     empty.
 
   if drawcount > 0 then begin
     if draw[drawcount] = actioncard then begin
       actionphase := 'start';
       actiontype := 'draw';
       consecutivedraws := consecutivedraws + 1;
-      if consecutivedraws > drawcount + discardcount then begin
+      if consecutivedraws >= drawcount + discardcount then begin
         desperate := True;       {once we go desperate we stay desperate for the game}
       end;
       exit;
@@ -2063,6 +2179,11 @@ begin
 
 end;
 
+
+//###################################################################
+// GAME HELP
+//###################################################################
+
 //===================================================================
 // Where is it eligible to move this card?
 //
@@ -2991,7 +3112,6 @@ begin
 
     // 10- Can we draw another card?
 
-
   if drawcount > 0 then begin
     selectmoveaction := 'drawacard';
     exit;
@@ -3378,6 +3498,123 @@ end;
 
 
 //###################################################################
+// AUTO PLAY
+//###################################################################
+
+//===================================================================
+// Do one auto play move.
+//
+// We don't use one routine to play one autoplay game after another.
+// That doesn't give a chance for the user to interrupt it. Instead,
+// we make one play, then put on a timer before we do another move.
+// The timer allows the user to do some action, while a sleep just
+// suspends the app.
+//===================================================================
+
+procedure doautoplaymove;
+
+var
+  gameover               : boolean = False;
+  label aftermove;
+
+begin
+
+    // Check for game over.
+    // If we cycle through the draw pile one time without a move, then we
+    // go into desperate mode and stay in that mode. If we cycle through
+    // again (not just right after, but any time while in desperate mode),
+    // for sure there are no moves we know how to make, and this game is
+    // over.
+    // The '>=' handles the case where no cards left in either pile.
+    // Otherwise, may never go desperate and game would end too early.
+
+  case desperate of
+    True: begin
+      if consecutivedraws > (drawcount + discardcount) then begin
+        gameover := True;
+        goto aftermove;
+      end;
+    end;
+    False: begin
+      if consecutivedraws >= (drawcount + discardcount) then begin
+        desperate := True;
+        consecutivedraws := 0;
+      end;
+    end;
+  end; {case}
+
+    // What should the next move be?
+
+  selectmove;
+
+  case selectmoveaction of
+
+    'movediscardtoscore' : begin
+       movediscardtoscore (selectmovescorepile);
+       consecutivedraws := 0;
+     end;
+
+     'movediscardtofaceup' : begin
+       movediscardtofaceup (selectmovetopile);
+       consecutivedraws := 0;
+      end;
+
+     'movebottomtoscore' : begin
+       movebottomtoscore (selectmovefrompile, selectmovescorepile);
+       consecutivedraws := 0;
+     end;
+
+     'movebottomtofaceup' : begin
+       movebottomtofaceup (selectmovefrompile, selectmovetopile);
+       consecutivedraws := 0;
+     end;
+
+     'moveinteriortofaceup' : begin
+        moveinteriortofaceup (selectmovecard, selectmovefrompile, selectmovetopile);
+        consecutivedraws := 0;
+     end;
+
+     'drawacard' : begin
+       drawacard;
+       consecutivedraws := consecutivedraws + 1;
+     end;
+
+     'remakedrawpile' : begin
+       remakedrawpile; {don't change consecutivedraws count}
+     end;
+
+     'none' : begin
+       if desperate = False then begin
+         desperate := True;
+       end
+       else begin
+         gameover := True;
+       end;
+     end;
+
+     else begin
+       gameover := True;  {should never happen}
+     end;
+
+  end; {case}
+
+    // If this game is over, start a new one.
+
+aftermove:
+
+  if gameover = True then begin
+    sleep (2000);
+    startgame;
+  end;
+
+    // Turn on timer for next move.
+
+  frmMain.timAutoPlay.Enabled := True;
+
+end;
+
+
+//###################################################################
 // CARD DISPLAY
 //###################################################################
 
@@ -3400,6 +3637,8 @@ procedure layoutthegame;
 
 var
   c                      : card;
+  endtop                 : smallint;
+  endleft                : smallint;
   i                      : smallint;
   n                      : smallint = 53;
   pile                   : smallint;
@@ -3409,14 +3648,16 @@ begin
 
     // Turn all the cards over and stack them in the deal position,
     // in the order they were shuffled.
+    // We don't animate this because: it's slow, it looks messy, and
+    // it can reveal the sorted order a bit.
 
   for i := 52 downto 1 do begin
     c := gamedeck[i];
     pcard[c].Picture := backimage.Picture;;
-    pcard[c].Top     := DEALTOP;
-    pcard[c].Left    := DEALLEFT;
     pcard[c].Enabled := False;
     pcard[c].Bringtofront;
+    pcard[c].Top  := DEALTOP;
+    pcard[c].Left := DEALLEFT;
   end;
 
     // Put the first 28 cards in the seven piles, starting with row 1
@@ -3443,13 +3684,21 @@ begin
 
       end; {case}
 
-      pcard[c].Top     := PILE1TOP + SPACEFACEDOWN*(row-1);
-      pcard[c].Left    := PILE1LEFT + (pile-1)*(CARDWIDTH+PILESPACING);
       pcard[c].Visible := True;
       pcard[c].Bringtofront;
-    end;
+      endtop  := PILE1TOP + SPACEFACEDOWN*(row-1);
+      endleft := PILE1LEFT + (pile-1)*(CARDWIDTH+PILESPACING);
+      if animateon then begin
+        animate (c, endtop, endleft, 0);
+      end
+      else begin
+        pcard[c].Top  := endtop;
+        pcard[c].Left := endleft;
+      end;
 
-  end;
+    end; {for pile}
+
+  end;   {for row}
  
   for pile := 1 to 7 do begin
     faceupcount[pile] := 1;
@@ -3461,17 +3710,41 @@ begin
     // That would reverse the order. We simply place the remaining deck there.
     // In order to have the images in the right order, we move from the bottom.
 
-    for i := 1 to 24 do begin
-     c := gamedeck[i];
-     pcard[c].Top     := DRAWTOP;
-     pcard[c].Left    := DRAWLEFT;
-     pcard[c].Visible := True;
-     pcard[c].Bringtofront;
-     draw[i] := c;
-   end;
+    // First we move the bottom 23 cards invisibly.
 
-   drawcount := 24;
-   pcard[draw[drawcount]].Enabled := True;
+  for i := 1 to 23 do begin
+    c := gamedeck[i];
+    pcard[c].Visible := False;
+    pcard[c].Top  := DRAWTOP;
+    pcard[c].Left := DRAWLEFT;
+  end;
+
+    // Then we move the top card. If animation is off, it goes instantly.
+    // If animation is on, then we animate the move to simulate the
+    // movement of the entire draw pile.
+
+  c := gamedeck[24];
+  pcard[c].Visible := True;
+  pcard[c].Bringtofront;
+  if animateon = True then begin
+    animate (c, DRAWTOP, DRAWLEFT, 0);
+  end
+  else begin
+    pcard[c].Top  := DRAWTOP;
+    pcard[c].Left := DRAWLEFT;
+  end;
+
+    // Tidy up the draw pile.
+
+  for i := 1 to 24 do begin
+    c := gamedeck[i];
+    pcard[c].Visible := True;
+    pcard[c].Bringtofront;
+    draw[i] := c;
+  end;
+
+  drawcount := 24;
+  pcard[draw[drawcount]].Enabled := True;
 
      // Zero out discard and score piles.
 
@@ -3666,9 +3939,9 @@ end;
 procedure animate (c: card; endtop: smallint; endleft: smallint; frompile: smallint);
 
 var
-  adjusteddelay          : smallint;
+  //adjusteddelay          : smallint;
   chainc                 : card;
-  chaincount             : smallint;
+  //chaincount             : smallint;
 
   deltaleft              : smallint;
   deltatop               : smallint;

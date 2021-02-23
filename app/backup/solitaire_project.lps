@@ -19,9 +19,8 @@
         <ComponentName Value="frmMain"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <IsVisibleTab Value="True"/>
-        <TopLine Value="630"/>
-        <CursorPos X="20" Y="647"/>
+        <TopLine Value="854"/>
+        <CursorPos Y="854"/>
         <UsageCount Value="201"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -32,10 +31,11 @@
         <ComponentName Value="frmAbout"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
+        <IsVisibleTab Value="True"/>
         <EditorIndex Value="1"/>
-        <TopLine Value="23"/>
-        <CursorPos X="5" Y="42"/>
-        <UsageCount Value="143"/>
+        <TopLine Value="37"/>
+        <CursorPos X="3" Y="73"/>
+        <UsageCount Value="165"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
       </Unit2>
@@ -43,123 +43,123 @@
     <JumpHistory Count="30" HistoryIndex="29">
       <Position1>
         <Filename Value="solitaire_unit.pas"/>
-        <Caret Line="834" Column="12" TopLine="800"/>
+        <Caret Line="1462" Column="20" TopLine="1423"/>
       </Position1>
       <Position2>
         <Filename Value="solitaire_unit.pas"/>
-        <Caret Line="835" Column="12" TopLine="801"/>
+        <Caret Line="3084" TopLine="3049"/>
       </Position2>
       <Position3>
         <Filename Value="solitaire_unit.pas"/>
-        <Caret Line="1696" Column="35" TopLine="1661"/>
+        <Caret Line="3086" Column="35" TopLine="3049"/>
       </Position3>
       <Position4>
         <Filename Value="solitaire_unit.pas"/>
-        <Caret Line="1758" Column="35" TopLine="1723"/>
+        <Caret Line="3133" Column="15" TopLine="3094"/>
       </Position4>
       <Position5>
         <Filename Value="solitaire_unit.pas"/>
-        <Caret Line="1815" Column="35" TopLine="1780"/>
+        <Caret Line="848" Column="18" TopLine="643"/>
       </Position5>
       <Position6>
         <Filename Value="solitaire_unit.pas"/>
-        <Caret Line="1879" Column="35" TopLine="1844"/>
+        <Caret Line="272" Column="15" TopLine="249"/>
       </Position6>
       <Position7>
         <Filename Value="solitaire_unit.pas"/>
-        <Caret Line="1954" Column="13" TopLine="1920"/>
+        <Caret Line="891" Column="17" TopLine="852"/>
       </Position7>
       <Position8>
         <Filename Value="solitaire_unit.pas"/>
-        <Caret Line="1955" Column="12" TopLine="1921"/>
+        <Caret Line="4051" Column="34" TopLine="4013"/>
       </Position8>
       <Position9>
         <Filename Value="solitaire_unit.pas"/>
-        <Caret Line="3651" Column="11" TopLine="3617"/>
+        <Caret Line="3582" Column="4" TopLine="3553"/>
       </Position9>
       <Position10>
         <Filename Value="solitaire_unit.pas"/>
-        <Caret Line="3657" Column="18" TopLine="3623"/>
+        <Caret Line="3583" Column="4" TopLine="3554"/>
       </Position10>
       <Position11>
         <Filename Value="solitaire_unit.pas"/>
-        <Caret Line="3712" Column="62" TopLine="3679"/>
+        <Caret Line="3598" Column="5" TopLine="3575"/>
       </Position11>
       <Position12>
         <Filename Value="solitaire_unit.pas"/>
-        <Caret Line="3786" Column="19" TopLine="3753"/>
+        <Caret Line="3594" Column="33" TopLine="3573"/>
       </Position12>
       <Position13>
         <Filename Value="solitaire_unit.pas"/>
-        <Caret Line="3811" Column="63" TopLine="3788"/>
+        <Caret Line="3582" Column="2" TopLine="3571"/>
       </Position13>
       <Position14>
         <Filename Value="solitaire_unit.pas"/>
-        <Caret Line="2145" Column="12" TopLine="2124"/>
+        <Caret Line="3587" Column="45" TopLine="3577"/>
       </Position14>
       <Position15>
         <Filename Value="solitaire_unit.pas"/>
-        <Caret Line="2153" Column="16" TopLine="2124"/>
+        <Caret Line="704" Column="20" TopLine="676"/>
       </Position15>
       <Position16>
         <Filename Value="solitaire_unit.pas"/>
-        <Caret Line="3712" Column="18" TopLine="3679"/>
+        <Caret Line="3519" Column="5" TopLine="3491"/>
       </Position16>
       <Position17>
         <Filename Value="solitaire_unit.pas"/>
-        <Caret Line="3947" Column="16" TopLine="3913"/>
+        <Caret Line="3518" Column="8" TopLine="3500"/>
       </Position17>
       <Position18>
         <Filename Value="solitaire_unit.pas"/>
-        <Caret Line="2145" Column="11" TopLine="2124"/>
+        <Caret Line="3612" Column="11" TopLine="3589"/>
       </Position18>
       <Position19>
         <Filename Value="solitaire_unit.pas"/>
-        <Caret Line="2154" Column="9" TopLine="2124"/>
+        <Caret Line="3611" Column="11" TopLine="3588"/>
       </Position19>
       <Position20>
         <Filename Value="solitaire_unit.pas"/>
-        <Caret Line="3713" Column="11" TopLine="3680"/>
+        <Caret Line="3610" Column="11" TopLine="3587"/>
       </Position20>
       <Position21>
         <Filename Value="solitaire_unit.pas"/>
-        <Caret Line="3948" Column="9" TopLine="3914"/>
+        <Caret Line="3609" Column="11"/>
       </Position21>
       <Position22>
         <Filename Value="solitaire_unit.pas"/>
-        <Caret Line="2145" Column="11" TopLine="2125"/>
+        <Caret Line="139" Column="54" TopLine="96"/>
       </Position22>
       <Position23>
         <Filename Value="solitaire_unit.pas"/>
-        <Caret Line="2154" Column="9" TopLine="2125"/>
+        <Caret Line="460" TopLine="421"/>
       </Position23>
       <Position24>
         <Filename Value="solitaire_unit.pas"/>
-        <Caret Line="1995" Column="37" TopLine="1969"/>
+        <Caret Line="463" TopLine="425"/>
       </Position24>
       <Position25>
         <Filename Value="solitaire_unit.pas"/>
-        <Caret Line="843" Column="22" TopLine="802"/>
+        <Caret Line="730" TopLine="692"/>
       </Position25>
       <Position26>
-        <Filename Value="solitaire_unit.pas"/>
-        <Caret Line="439" Column="22" TopLine="427"/>
+        <Filename Value="about_unit.pas"/>
+        <Caret Line="42" Column="5" TopLine="23"/>
       </Position26>
       <Position27>
-        <Filename Value="solitaire_unit.pas"/>
-        <Caret Line="438" Column="22" TopLine="426"/>
+        <Filename Value="about_unit.pas"/>
+        <Caret Line="43" Column="5" TopLine="24"/>
       </Position27>
       <Position28>
-        <Filename Value="solitaire_unit.pas"/>
-        <Caret Line="3809" Column="20" TopLine="3788"/>
+        <Filename Value="about_unit.pas"/>
+        <Caret Line="44" Column="5" TopLine="25"/>
       </Position28>
       <Position29>
         <Filename Value="about_unit.pas"/>
-        <Caret Line="70" TopLine="29"/>
+        <Caret Line="45" Column="5" TopLine="25"/>
       </Position29>
       <Position30>
         <Filename Value="about_unit.pas"/>
-        <Caret Line="65" TopLine="32"/>
+        <Caret Line="46" Column="5" TopLine="25"/>
       </Position30>
     </JumpHistory>
     <RunParams>

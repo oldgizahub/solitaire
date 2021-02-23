@@ -15,7 +15,9 @@ type
   TfrmAbout = class(TForm)
     btnCloseAbout: TButton;
     Image1: TImage;
-    imgIconRepaint: TImage;
+    imgIconManual: TImage;
+    imgIconAuto: TImage;
+    imgIconSpeed: TImage;
     imgIconNewGame: TImage;
     imgIconReplay: TImage;
     imgIconUndo: TImage;
@@ -32,6 +34,8 @@ type
     memIconAbout: TMemo;
     memIconQuit: TMemo;
     memIconRepaint: TMemo;
+    memIconManual: TMemo;
+    memIconAuto: TMemo;
     memTips: TMemo;
     memRules: TMemo;
     pagAbout: TPageControl;
@@ -42,6 +46,7 @@ type
 
     procedure btnCloseAboutClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
+    procedure memIconAutoChange(Sender: TObject);
 
   private
 
@@ -61,6 +66,11 @@ implementation
 procedure TfrmAbout.FormShow(Sender: TObject);
 begin
   frmAbout.btnCloseAbout.Bringtofront;
+end;
+
+procedure TfrmAbout.memIconAutoChange(Sender: TObject);
+begin
+
 end;
 
 

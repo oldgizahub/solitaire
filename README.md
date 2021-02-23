@@ -9,3 +9,12 @@ February 17, 2021
 -----------------
 
 Initial commit of working program.
+
+
+February 22, 2010
+-----------------
+
+Added:
+- autoplay
+- animate the deal
+- minor cleanup
